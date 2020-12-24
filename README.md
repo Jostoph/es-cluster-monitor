@@ -1,4 +1,4 @@
-# TAURUS Challenge - Elastic Search cluster monitor
+# Elastic Search cluster monitor
 
 Creation of a **Go microservice** that monitors the health of an **Elastic Search cluster**.
 

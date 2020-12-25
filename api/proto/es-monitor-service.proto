@@ -1,0 +1,48 @@
+syntax = "proto3";
+package proto;
+
+option go_package = "github.com/Jostoph/es-cluster-monitor/pkg/api";
+
+// Service: Monitoring Service
+service MonitorService {
+  rpc ReadHealth(HealthRequest) returns (HealthResponse);
+}
+
+// TODO: Add ClusterHealth with Req, Res, etc...
+// TODO: Add Index monitoring
+
+// Request: General health of the ES clusters
+message HealthRequest {}
+
+// Response: General health of the ES clusters
+message HealthResponse {
+  repeated GeneralClusterHealthResponse clusters = 1;
+}
+
+// Response: General health of an ES cluster
+message GeneralClusterHealthResponse {
+  // unix timestamp
+  int32 epoch = 1;
+  // timestamp digital format (HH:MM:SS)
+  string timestamp = 2;
+  // cluster name
+  string cluster = 3;
+  enum Status {
+    UNKNOWN = 0;
+    GREEN = 1;
+    YELLOW = 2;
+    RED = 3;
+  }
+  Status status = 4;
+  int32 nodeTotal = 5;
+  int32 nodeData = 6;
+  int32 shards = 7;
+  int32 pri = 8;
+  int32 relo = 9;
+  int32 init = 10;
+  int32 unassign = 11;
+  int32 pendingTasks = 12;
+  int32 maxTaskWaitTime = 13;
+  float activeShardsPercent = 14;
+}
+

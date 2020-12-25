@@ -4,6 +4,7 @@
   - [Elastic Search cat API](https://www.elastic.co/guide/en/elasticsearch/reference/current/cat.html)
   - [Elastic Search cat health API](https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-health.html)
   - [Elastic Search cat indices API](https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-indices.html)
+  - [Elastic Search cluster health API](https://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-health.html)
 - Elastic Search Container
   - [Elastic Search Docker](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html)
 - Project Structure

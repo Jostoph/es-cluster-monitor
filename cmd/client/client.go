@@ -2,26 +2,24 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
-	"github/Jostoph/es-cluster-monitor/pkg/api"
-	"google.golang.org/grpc"
-	"log"
+	"github/Jostoph/es-cluster-monitor/pkg/grpc"
+	"os"
 )
 
 func main() {
 
-	conn, err := grpc.Dial(fmt.Sprintf(":%d", 9000), grpc.WithInsecure())
-	if err != nil {
-		log.Fatalf("Could not connect to server: %s", err)
-	}
-	defer conn.Close()
+	// context
+	ctx := context.Background()
 
-	// crate grpc client for ES Monitor Service
-	monitorService := api.NewMonitorServiceClient(conn)
+	// grpc server port
+	serverPort := flag.Int("server-port", 9000, "GRPC server port.")
+	flag.Parse()
 
-	res, err := monitorService.ReadHealth(context.Background(), &api.HealthRequest{})
-	if err != nil {
-		log.Fatalf("Error while fetching Clusters General Health: %s", err)
+	if err := grpc.NewClient(ctx, *serverPort); err != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", err)
+		os.Exit(1)
 	}
-	log.Printf("Cluster General Health:\n%+v", res)
+
 }

@@ -22,10 +22,10 @@ func main() {
 	server := grpc.NewServer()
 
 	// create new ES Monitor Service Server
-	serviceServer := service.ESMonitorServer{}
+	serviceServer := service.NewESMonitorServer("http://localhost:9200")
 
-	// Register Service to grpc server
-	api.RegisterMonitorServiceServer(server, &serviceServer)
+	// register Service to grpc server
+	api.RegisterMonitorServiceServer(server, serviceServer)
 
 	// interruption signal to stop server (^c)
 	c := make(chan os.Signal, 1)

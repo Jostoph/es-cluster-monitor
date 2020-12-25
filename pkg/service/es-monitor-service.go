@@ -10,20 +10,20 @@ type ESMonitorServer struct {}
 func (server *ESMonitorServer) ReadHealth(ctx context.Context, req *api.HealthRequest) (*api.HealthResponse, error) {
 
 	cluster := &api.GeneralClusterHealthResponse{
-		Epoch:               0,
+		Epoch:               123,
 		Timestamp:           "14:14:14",
 		Cluster:             "fake-cluster",
-		Status:              0,
-		NodeTotal:           0,
-		NodeData:            0,
-		Shards:              0,
-		Pri:                 0,
-		Relo:                0,
-		Init:                0,
-		Unassign:            0,
-		PendingTasks:        0,
-		MaxTaskWaitTime:     0,
-		ActiveShardsPercent: 50.0,
+		Status:              1,
+		NodeTotal:           1,
+		NodeData:            1,
+		Shards:              1,
+		Pri:                 1,
+		Relo:                1,
+		Init:                1,
+		Unassign:            1,
+		PendingTasks:        1,
+		MaxTaskWaitTime:     123,
+		ActiveShardsPercent: 70.0,
 	}
 	return &api.HealthResponse {
 		Clusters: []*api.GeneralClusterHealthResponse{cluster},

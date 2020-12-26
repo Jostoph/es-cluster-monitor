@@ -18,10 +18,10 @@ func NewClient(ctx context.Context, serverPort int) error {
 	// crate grpc client for ES Monitor Service
 	monitorService := api.NewMonitorServiceClient(conn)
 
-	res, err := monitorService.ReadHealth(ctx, &api.HealthRequest{})
+	res, err := monitorService.ReadClusterHealth(ctx, &api.ClusterHealthRequest{})
 	if err != nil {
 		return err
 	}
-	log.Printf("Cluster General Health:\n%+v", res)
+	log.Printf("Cluster Health:\n\n%+v", res)
 	return nil
 }

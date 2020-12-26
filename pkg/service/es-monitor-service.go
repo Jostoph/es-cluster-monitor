@@ -6,13 +6,11 @@ import (
 	"fmt"
 	"github/Jostoph/es-cluster-monitor/pkg/api"
 	"io/ioutil"
-	"log"
 	"net/http"
-	"strconv"
-	"strings"
+	"time"
 )
 
-type ESMonitorServer struct{
+type ESMonitorServer struct {
 	ESAddr string
 }
 
@@ -21,108 +19,81 @@ func NewESMonitorServer(esAddr string) api.MonitorServiceServer {
 	return &ESMonitorServer{ESAddr: esAddr}
 }
 
-// Cluster structure to hold ES API health response.
-type cluster struct {
-	Epoch               string `json:"epoch"`
-	Timestamp           string `json:"timestamp"`
-	Cluster             string `json:"cluster"`
-	Status              string `json:"status"`
-	NodeTotal           string `json:"node.total"`
-	NodeData            string `json:"node.data"`
-	Shards              string `json:"shards"`
-	Pri                 string `json:"pri"`
-	Relo                string `json:"relo"`
-	Init                string `json:"init"`
-	Unassign            string `json:"unassign"`
-	PendingTasks        string `json:"pending_tasks"`
-	MaxTaskWaitTime     string `json:"max_task_wait_time"`
-	ActiveShardsPercent string `json:"active_shards_percent"`
+// ClusterHealth structure to hold an Elastic Search API response for cluster health.
+type clusterHealth struct {
+	ClusterName                 string  `json:"cluster_name"`
+	Status                      string  `json:"status"`
+	TimedOut                    bool    `json:"timed_out"`
+	NumberOfNodes               int32   `json:"number_of_nodes"`
+	NumberOfDataNodes           int32   `json:"number_of_data_nodes"`
+	ActivePrimaryShards         int32   `json:"active_primary_shards"`
+	ActiveShards                int32   `json:"active_shards"`
+	RelocatingShards            int32   `json:"relocating_shards"`
+	InitializingShards          int32   `json:"initializing_shards"`
+	UnassignedShards            int32   `json:"unassigned_shards"`
+	DelayedUnassignedShards     int32   `json:"delayed_unassigned_shards"`
+	NumberOfPendingTasks        int32   `json:"number_of_pending_tasks"`
+	NumberOfInFlightFetch       int32   `json:"number_of_in_flight_fetch"`
+	TaskMaxWaitingInQueueMillis int32   `json:"task_max_waiting_in_queue_millis"`
+	ActiveShardsPercentAsNumber float32 `json:"active_shards_percent_as_number"`
 }
 
 // Convert string status to enum.
-func statusToEnum(status string) api.GeneralClusterHealthResponse_Status {
+func statusToEnum(status string) api.ClusterHealthResponse_Status {
 	switch status {
 	case "green":
-		return api.GeneralClusterHealthResponse_GREEN
+		return api.ClusterHealthResponse_GREEN
 	case "yellow":
-		return api.GeneralClusterHealthResponse_YELLOW
+		return api.ClusterHealthResponse_YELLOW
 	case "red":
-		return api.GeneralClusterHealthResponse_RED
+		return api.ClusterHealthResponse_RED
 	default:
-		return api.GeneralClusterHealthResponse_UNKNOWN
+		return api.ClusterHealthResponse_UNKNOWN
 	}
-}
-
-// Converts a string to int32, return 0 if the conversion fails or the value is "-".
-func stringToInt32(s string) int32 {
-
-	if s == "-" {
-		return 0
-	}
-
-	i, err := strconv.ParseInt(s, 10, 32)
-	if err != nil {
-		return 0
-	}
-	return int32(i)
-}
-
-// Converts a string to float32, return 0 if the conversion fails and removes trailing '%'.
-func stringToFloat32(s string) float32 {
-	f, err := strconv.ParseFloat(strings.TrimSuffix(s, "%"), 32)
-	if err != nil {
-		return 0
-	}
-	return float32(f)
 }
 
 // Convert json Cluster ES API health response to proto message.
-func jsonClustersToProto(clustersJSON []byte) (*api.HealthResponse, error) {
-	var clusters []cluster
-	err := json.Unmarshal(clustersJSON, &clusters)
+func jsonClusterToProto(clusterJSON []byte) (*api.ClusterHealthResponse, error) {
+	var cluster clusterHealth
+	err := json.Unmarshal(clusterJSON, &cluster)
 	if err != nil {
-		log.Printf("Conversion error: %s", err)
 		return nil, err
 	}
-	clustersProto := make([]*api.GeneralClusterHealthResponse, 0)
-	for _, c := range clusters {
-		proto := api.GeneralClusterHealthResponse{
-			Epoch:               stringToInt32(c.Epoch),
-			Timestamp:           c.Timestamp,
-			Cluster:             c.Cluster,
-			Status:              statusToEnum(c.Status),
-			NodeTotal:           stringToInt32(c.NodeTotal),
-			NodeData:            stringToInt32(c.NodeData),
-			Shards:              stringToInt32(c.Shards),
-			Pri:                 stringToInt32(c.Pri),
-			Relo:                stringToInt32(c.Relo),
-			Init:                stringToInt32(c.Init),
-			Unassign:            stringToInt32(c.Unassign),
-			PendingTasks:        stringToInt32(c.PendingTasks),
-			MaxTaskWaitTime:     stringToInt32(c.MaxTaskWaitTime),
-			ActiveShardsPercent: stringToFloat32(c.ActiveShardsPercent),
-		}
-		clustersProto = append(clustersProto, &proto)
-	}
 
-	return &api.HealthResponse{
-		Clusters: clustersProto,
+	return &api.ClusterHealthResponse{
+		ClusterName:                 cluster.ClusterName,
+		Status:                      statusToEnum(cluster.Status),
+		TimedOut:                    cluster.TimedOut,
+		NumberOfNodes:               cluster.NumberOfNodes,
+		NumberOfDataNodes:           cluster.NumberOfDataNodes,
+		ActivePrimaryShards:         cluster.ActivePrimaryShards,
+		ActiveShards:                cluster.ActiveShards,
+		RelocatingShards:            cluster.RelocatingShards,
+		InitializingShards:          cluster.InitializingShards,
+		UnassignedShards:            cluster.UnassignedShards,
+		DelayedUnassignedShards:     cluster.DelayedUnassignedShards,
+		NumberOfPendingTasks:        cluster.NumberOfPendingTasks,
+		NumberOfInFlightFetch:       cluster.NumberOfInFlightFetch,
+		TaskMaxWaitingInQueueMillis: cluster.TaskMaxWaitingInQueueMillis,
+		ActiveShardsPercentAsNumber: cluster.ActiveShardsPercentAsNumber,
+		Timestamp:                   time.Now().Unix(),
 	}, nil
 }
 
-func (server *ESMonitorServer) ReadHealth(ctx context.Context, req *api.HealthRequest) (*api.HealthResponse, error) {
+func (server *ESMonitorServer) ReadClusterHealth(ctx context.Context, req *api.ClusterHealthRequest) (*api.ClusterHealthResponse, error) {
 
-	res, err := http.Get(fmt.Sprintf("%s/_cat/health?format=JSON", server.ESAddr))
+	// Retrieve Cluster Health as JSON with ES API.
+	res, err := http.Get(fmt.Sprintf("%s/_cluster/health?format=JSON", server.ESAddr))
 	if err != nil {
 		return nil, err
 	}
 
-	clustersJSON, _ := ioutil.ReadAll(res.Body)
-
-	resProto, err := jsonClustersToProto(clustersJSON)
+	// Convert JSON response to proto response.
+	clusterJSON, _ := ioutil.ReadAll(res.Body)
+	proto, err := jsonClusterToProto(clusterJSON)
 	if err != nil {
 		return nil, err
 	}
 
-	return resProto, nil
+	return proto, nil
 }

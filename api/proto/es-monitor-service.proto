@@ -5,44 +5,36 @@ option go_package = "github.com/Jostoph/es-cluster-monitor/pkg/api";
 
 // Service: Monitoring Service
 service MonitorService {
-  rpc ReadHealth(HealthRequest) returns (HealthResponse);
+  rpc ReadClusterHealth(ClusterHealthRequest) returns (ClusterHealthResponse);
 }
 
-// TODO: Add ClusterHealth with Req, Res, etc...
 // TODO: Add Index monitoring
 
-// Request: General health of the ES clusters
-message HealthRequest {}
+// Request: Health of a Cluster
+message ClusterHealthRequest {}
 
-// Response: General health of the ES clusters
-message HealthResponse {
-  repeated GeneralClusterHealthResponse clusters = 1;
-}
-
-// Response: General health of an ES cluster
-message GeneralClusterHealthResponse {
-  // unix timestamp
-  int32 epoch = 1;
-  // timestamp digital format (HH:MM:SS)
-  string timestamp = 2;
-  // cluster name
-  string cluster = 3;
+// Response: Health of a Cluster
+message ClusterHealthResponse {
+  string cluster_name = 1;
   enum Status {
     UNKNOWN = 0;
     GREEN = 1;
     YELLOW = 2;
     RED = 3;
   }
-  Status status = 4;
-  int32 nodeTotal = 5;
-  int32 nodeData = 6;
-  int32 shards = 7;
-  int32 pri = 8;
-  int32 relo = 9;
-  int32 init = 10;
-  int32 unassign = 11;
-  int32 pendingTasks = 12;
-  int32 maxTaskWaitTime = 13;
-  float activeShardsPercent = 14;
+  Status status = 2;
+  bool timed_out = 3;
+  int32 number_of_nodes = 4;
+  int32 number_of_data_nodes = 5;
+  int32 active_primary_shards = 6;
+  int32 active_shards = 7;
+  int32 relocating_shards = 8;
+  int32 initializing_shards = 9;
+  int32 unassigned_shards = 10;
+  int32 delayed_unassigned_shards = 11;
+  int32 number_of_pending_tasks = 12;
+  int32 number_of_in_flight_fetch = 13;
+  int32 task_max_waiting_in_queue_millis = 14;
+  float active_shards_percent_as_number = 15;
+  int64 timestamp = 16;
 }
-

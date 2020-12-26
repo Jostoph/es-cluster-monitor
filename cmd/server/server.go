@@ -16,7 +16,7 @@ func main() {
 	// grpc server port
 	port := flag.Int("server-port", 9000, "GRPC server port.")
 
-	// Elastic Search Clusters Address
+	// elastic search clusters address
 	esAddr := flag.String("es-addr", "http://localhost:9200", "Elastic Search Clusters Address.")
 	flag.Parse()
 

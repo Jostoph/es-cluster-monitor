@@ -39,16 +39,16 @@ type clusterHealth struct {
 }
 
 // Convert string status to enum.
-func statusToEnum(status string) api.ClusterHealthResponse_Status {
+func statusToEnum(status string) api.Status {
 	switch status {
 	case "green":
-		return api.ClusterHealthResponse_GREEN
+		return api.Status_GREEN
 	case "yellow":
-		return api.ClusterHealthResponse_YELLOW
+		return api.Status_YELLOW
 	case "red":
-		return api.ClusterHealthResponse_RED
+		return api.Status_RED
 	default:
-		return api.ClusterHealthResponse_UNKNOWN
+		return api.Status_UNKNOWN
 	}
 }
 
@@ -96,4 +96,10 @@ func (server *ESMonitorServer) ReadClusterHealth(ctx context.Context, req *api.C
 	}
 
 	return proto, nil
+}
+
+func (server *ESMonitorServer) ReadIndicesInfo(ctx context.Context, req *api.IndicesInfoRequest) (*api.IndicesInfoResponse, error) {
+
+	// TODO
+	return nil, nil
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github/Jostoph/es-cluster-monitor/pkg/api"
+	"github/Jostoph/es-cluster-monitor/pkg/rest"
 	"github/Jostoph/es-cluster-monitor/pkg/service"
 	"google.golang.org/grpc"
 	"log"
@@ -23,7 +24,7 @@ func NewServer(ctx context.Context, port int, ESAddr string) error {
 	server := grpc.NewServer()
 
 	// create new ES Monitor Service Server
-	serviceServer := service.NewESMonitorServer(ESAddr)
+	serviceServer := service.NewESMonitorServer(ESAddr, rest.Client)
 
 	// register Service to grpc server
 	api.RegisterMonitorServiceServer(server, serviceServer)

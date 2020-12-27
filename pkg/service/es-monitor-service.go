@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github/Jostoph/es-cluster-monitor/pkg/api"
+	"github/Jostoph/es-cluster-monitor/pkg/rest"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -13,11 +14,15 @@ import (
 
 type ESMonitorServer struct {
 	ESAddr string
+	Client rest.HTTPClient
 }
 
 // Return a new Monitor Service Server with ES server address.
-func NewESMonitorServer(esAddr string) api.MonitorServiceServer {
-	return &ESMonitorServer{ESAddr: esAddr}
+func NewESMonitorServer(esAddr string, client rest.HTTPClient) api.MonitorServiceServer {
+	return &ESMonitorServer{
+		ESAddr: esAddr,
+		Client: client,
+	}
 }
 
 // ClusterHealth structure to hold an Elastic Search API response for cluster health.
@@ -138,7 +143,16 @@ func jsonIndicesToProto(indicesJSON []byte) (*api.IndicesInfoResponse, error) {
 func (server *ESMonitorServer) ReadClusterHealth(ctx context.Context, req *api.ClusterHealthRequest) (*api.ClusterHealthResponse, error) {
 
 	// Retrieve Cluster Health as JSON with ES API.
-	res, err := http.Get(fmt.Sprintf("%s/_cluster/health?format=JSON", server.ESAddr))
+	request, err := http.NewRequest(
+		http.MethodGet,
+		fmt.Sprintf("%s/_cluster/health?format=JSON", server.ESAddr),
+		nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := server.Client.Do(request)
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +174,16 @@ func (server *ESMonitorServer) ReadClusterHealth(ctx context.Context, req *api.C
 func (server *ESMonitorServer) ReadIndicesInfo(ctx context.Context, req *api.IndicesInfoRequest) (*api.IndicesInfoResponse, error) {
 
 	// Retrieve Indices Info as JSON with ES API.
-	res, err := http.Get(fmt.Sprintf("%s/_cat/indices?v&bytes=b&format=JSON", server.ESAddr))
+	request, err := http.NewRequest(
+		http.MethodGet,
+		fmt.Sprintf("%s/_cat/indices?v&bytes=b&format=JSON", server.ESAddr),
+		nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := server.Client.Do(request)
 	if err != nil {
 		return nil, err
 	}

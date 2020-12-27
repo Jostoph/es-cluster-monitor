@@ -5,7 +5,6 @@ Creation of a **Go microservice** that monitors the health of an **Elastic Searc
 ## Goal
 
 - Use this microservice as a monitoring tool.
-- Due date: 08.01.2021
 
 ## Specifications
 

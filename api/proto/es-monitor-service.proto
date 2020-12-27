@@ -55,6 +55,6 @@ message IndexInfo {
   int32 rep = 6;
   int32 docs_count = 7;
   int32 docs_deleted = 8;
-  int32 store_size = 9;
-  int32 pri_store_size = 10;
+  int64 store_size = 9;
+  int64 pri_store_size = 10;
 }

@@ -67,14 +67,14 @@ func statusToEnum(status string) api.Status {
 	}
 }
 
-// Convert string to int32. Return 0 if the conversion fails.
-func stringToInt32(s string) int32 {
+// Convert string to int64. Return 0 if the conversion fails.
+func stringToInt(s string) int64 {
 	i, err := strconv.ParseInt(s, 10, 32)
 	if err != nil {
 		return 0
 	}
 
-	return int32(i)
+	return i
 }
 
 // Convert json Cluster ES API health response to proto message.
@@ -119,12 +119,12 @@ func jsonIndicesToProto(indicesJSON []byte) (*api.IndicesInfoResponse, error) {
 			Status:       idxInfo.Status,
 			Index:        idxInfo.Index,
 			Uuid:         idxInfo.Uuid,
-			Pri:          stringToInt32(idxInfo.Pri),
-			Rep:          stringToInt32(idxInfo.Rep),
-			DocsCount:    stringToInt32(idxInfo.DocsCount),
-			DocsDeleted:  stringToInt32(idxInfo.DocsDeleted),
-			StoreSize:    stringToInt32(idxInfo.StoreSize),
-			PriStoreSize: stringToInt32(idxInfo.PriStoreSize),
+			Pri:          int32(stringToInt(idxInfo.Pri)),
+			Rep:          int32(stringToInt(idxInfo.Rep)),
+			DocsCount:    int32(stringToInt(idxInfo.DocsCount)),
+			DocsDeleted:  int32(stringToInt(idxInfo.DocsDeleted)),
+			StoreSize:    stringToInt(idxInfo.StoreSize),
+			PriStoreSize: stringToInt(idxInfo.PriStoreSize),
 		}
 		indicesProto = append(indicesProto, &proto)
 	}

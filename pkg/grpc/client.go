@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/golang/protobuf/proto"
 	"github/Jostoph/es-cluster-monitor/pkg/api"
 	"google.golang.org/grpc"
 	"log"
@@ -18,10 +19,17 @@ func NewClient(ctx context.Context, serverPort int) error {
 	// crate grpc client for ES Monitor Service
 	monitorService := api.NewMonitorServiceClient(conn)
 
-	res, err := monitorService.ReadClusterHealth(ctx, &api.ClusterHealthRequest{})
+	resClusterHealth, err := monitorService.ReadClusterHealth(ctx, &api.ClusterHealthRequest{})
 	if err != nil {
 		return err
 	}
-	log.Printf("Cluster Health:\n\n%+v", res)
+	log.Printf("Cluster Health:\n\n%+v\n\n", proto.MarshalTextString(resClusterHealth))
+
+	resIndicesInfo, err := monitorService.ReadIndicesInfo(ctx, &api.IndicesInfoRequest{})
+	if err != nil {
+		return err
+	}
+	log.Printf("Indices Info:\n\n%s\n", proto.MarshalTextString(resIndicesInfo))
+
 	return nil
 }

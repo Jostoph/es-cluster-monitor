@@ -7,6 +7,7 @@ import (
 	"github/Jostoph/es-cluster-monitor/pkg/api"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -38,6 +39,20 @@ type clusterHealth struct {
 	ActiveShardsPercentAsNumber float32 `json:"active_shards_percent_as_number"`
 }
 
+// IndexInfo structure to hold an Elastic Search API response for indices info.
+type indexInfo struct {
+	Health       string `json:"health"`
+	Status       string `json:"status"`
+	Index        string `json:"index"`
+	Uuid         string `json:"uuid"`
+	Pri          string `json:"pri"`
+	Rep          string `json:"rep"`
+	DocsCount    string `json:"docs.count"`
+	DocsDeleted  string `json:"docs.deleted"`
+	StoreSize    string `json:"store.size"`
+	PriStoreSize string `json:"pri.store.size"`
+}
+
 // Convert string status to enum.
 func statusToEnum(status string) api.Status {
 	switch status {
@@ -50,6 +65,16 @@ func statusToEnum(status string) api.Status {
 	default:
 		return api.Status_UNKNOWN
 	}
+}
+
+// Convert string to int32. Return 0 if the conversion fails.
+func stringToInt32(s string) int32 {
+	i, err := strconv.ParseInt(s, 10, 32)
+	if err != nil {
+		return 0
+	}
+
+	return int32(i)
 }
 
 // Convert json Cluster ES API health response to proto message.
@@ -80,6 +105,36 @@ func jsonClusterToProto(clusterJSON []byte) (*api.ClusterHealthResponse, error) 
 	}, nil
 }
 
+func jsonIndicesToProto(indicesJSON []byte) (*api.IndicesInfoResponse, error) {
+	var indices []indexInfo
+	err := json.Unmarshal(indicesJSON, &indices)
+	if err != nil {
+		return nil, err
+	}
+
+	indicesProto := make([]*api.IndexInfo, 0)
+	for _, idxInfo := range indices {
+		proto := api.IndexInfo{
+			Health:       statusToEnum(idxInfo.Status),
+			Status:       idxInfo.Status,
+			Index:        idxInfo.Index,
+			Uuid:         idxInfo.Uuid,
+			Pri:          stringToInt32(idxInfo.Pri),
+			Rep:          stringToInt32(idxInfo.Rep),
+			DocsCount:    stringToInt32(idxInfo.DocsCount),
+			DocsDeleted:  stringToInt32(idxInfo.DocsDeleted),
+			StoreSize:    stringToInt32(idxInfo.StoreSize),
+			PriStoreSize: stringToInt32(idxInfo.PriStoreSize),
+		}
+		indicesProto = append(indicesProto, &proto)
+	}
+
+	return &api.IndicesInfoResponse{
+		Indices:   indicesProto,
+		Timestamp: time.Now().Unix(),
+	}, nil
+}
+
 func (server *ESMonitorServer) ReadClusterHealth(ctx context.Context, req *api.ClusterHealthRequest) (*api.ClusterHealthResponse, error) {
 
 	// Retrieve Cluster Health as JSON with ES API.
@@ -89,7 +144,11 @@ func (server *ESMonitorServer) ReadClusterHealth(ctx context.Context, req *api.C
 	}
 
 	// Convert JSON response to proto response.
-	clusterJSON, _ := ioutil.ReadAll(res.Body)
+	clusterJSON, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
 	proto, err := jsonClusterToProto(clusterJSON)
 	if err != nil {
 		return nil, err
@@ -100,6 +159,22 @@ func (server *ESMonitorServer) ReadClusterHealth(ctx context.Context, req *api.C
 
 func (server *ESMonitorServer) ReadIndicesInfo(ctx context.Context, req *api.IndicesInfoRequest) (*api.IndicesInfoResponse, error) {
 
-	// TODO
-	return nil, nil
+	// Retrieve Indices Info as JSON with ES API.
+	res, err := http.Get(fmt.Sprintf("%s/_cat/indices?v&bytes=b&format=JSON", server.ESAddr))
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert JSON response to proto response.
+	indicesJSON, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	proto, err := jsonIndicesToProto(indicesJSON)
+	if err != nil {
+		return nil, err
+	}
+
+	return proto, nil
 }

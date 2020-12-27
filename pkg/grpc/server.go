@@ -3,9 +3,9 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"github/Jostoph/es-cluster-monitor/pkg/api"
-	"github/Jostoph/es-cluster-monitor/pkg/rest"
-	"github/Jostoph/es-cluster-monitor/pkg/service"
+	"github.com/Jostoph/es-cluster-monitor/pkg/api"
+	"github.com/Jostoph/es-cluster-monitor/pkg/rest"
+	"github.com/Jostoph/es-cluster-monitor/pkg/service"
 	"google.golang.org/grpc"
 	"log"
 	"net"

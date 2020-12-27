@@ -1,4 +1,4 @@
-module github/Jostoph/es-cluster-monitor
+module github.com/Jostoph/es-cluster-monitor
 
 go 1.15
 

@@ -3,8 +3,8 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/Jostoph/es-cluster-monitor/pkg/api"
 	"github.com/golang/protobuf/proto"
-	"github/Jostoph/es-cluster-monitor/pkg/api"
 	"google.golang.org/grpc"
 	"log"
 )

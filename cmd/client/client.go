@@ -4,7 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github/Jostoph/es-cluster-monitor/pkg/grpc"
+	"github.com/Jostoph/es-cluster-monitor/pkg/grpc"
 	"os"
 )
 

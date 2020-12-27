@@ -78,7 +78,7 @@ indices: <
 timestamp: 1609061723
 ```
 
-### Tests
+## Tests
 
 Tests for the Monitoring Service can be executed with the following command from the project root folder:
 

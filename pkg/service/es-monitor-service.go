@@ -115,7 +115,7 @@ func jsonIndicesToProto(indicesJSON []byte) (*api.IndicesInfoResponse, error) {
 	indicesProto := make([]*api.IndexInfo, 0)
 	for _, idxInfo := range indices {
 		proto := api.IndexInfo{
-			Health:       statusToEnum(idxInfo.Status),
+			Health:       statusToEnum(idxInfo.Health),
 			Status:       idxInfo.Status,
 			Index:        idxInfo.Index,
 			Uuid:         idxInfo.Uuid,

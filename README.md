@@ -78,4 +78,12 @@ indices: <
 timestamp: 1609061723
 ```
 
+### tests
+
+Tests for the Monitoring Service can be executed with the following command from the project root folder:
+
+```shell
+go test ./pkg/service
+```
+
 

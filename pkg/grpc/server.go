@@ -37,7 +37,7 @@ func (server *Server) Run() error {
 	serv := grpc.NewServer()
 
 	// create new ES Monitor Service Server
-	serviceServer := service.NewESMonitorServer(server.addr, rest.Client)
+	serviceServer := service.NewESMonitorServer(server.addr, rest.NewClient())
 
 	// register Service to grpc server
 	api.RegisterMonitorServiceServer(serv, serviceServer)

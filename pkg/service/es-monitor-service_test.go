@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"github.com/Jostoph/es-cluster-monitor/mocks"
 	"github.com/Jostoph/es-cluster-monitor/pkg/api"
+	"github.com/Jostoph/es-cluster-monitor/pkg/rest/mocks"
 	"github.com/golang/protobuf/proto"
+	"github.com/stretchr/testify/mock"
 	"io/ioutil"
 	"net/http"
 	"testing"
@@ -63,7 +64,7 @@ func TestStringToInt(t *testing.T) {
 
 func TestESMonitorServer_ReadClusterHealth(t *testing.T) {
 	ctx := context.Background()
-	httpMockClient := mocks.Client{}
+	httpMockClient := mocks.HTTPClient{}
 	server := NewESMonitorServer("", &httpMockClient)
 
 	tests := []struct {
@@ -104,11 +105,16 @@ func TestESMonitorServer_ReadClusterHealth(t *testing.T) {
 				fetchError = errors.New("fetch error")
 			}
 
-			mocks.GetDoFunc = func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					Body: r,
-				}, fetchError
-			}
+			httpMockClient.Mock.On("Do", mock.AnythingOfType("*http.Request")).Return(
+				func(req *http.Request) *http.Response {
+					return &http.Response{
+						Body: r,
+					}
+				},
+				func(req *http.Request) error {
+					return fetchError
+				},
+			)
 
 			tm := time.Now().Unix()
 			// call service with mocked http client
@@ -133,7 +139,7 @@ func TestESMonitorServer_ReadClusterHealth(t *testing.T) {
 
 func TestESMonitorServer_ReadIndicesInfo(t *testing.T) {
 	ctx := context.Background()
-	httpMockClient := mocks.Client{}
+	httpMockClient := mocks.HTTPClient{}
 	server := NewESMonitorServer("", &httpMockClient)
 
 	tests := []struct {
@@ -177,11 +183,16 @@ func TestESMonitorServer_ReadIndicesInfo(t *testing.T) {
 				fetchError = errors.New("fetch error")
 			}
 
-			mocks.GetDoFunc = func(req *http.Request) (*http.Response, error) {
-				return &http.Response{
-					Body: r,
-				}, fetchError
-			}
+			httpMockClient.Mock.On("Do", mock.AnythingOfType("*http.Request")).Return(
+				func(req *http.Request) *http.Response {
+					return &http.Response{
+						Body: r,
+					}
+				},
+				func(req *http.Request) error {
+					return fetchError
+				},
+			)
 
 			tm := time.Now().Unix()
 			// call service with mocked http client

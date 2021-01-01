@@ -9,8 +9,20 @@ import (
 	"log"
 )
 
-func NewClient(ctx context.Context, serverPort int) error {
-	conn, err := grpc.Dial(fmt.Sprintf(":%d", serverPort), grpc.WithInsecure())
+type Client struct {
+	ctx        context.Context
+	serverPort int
+}
+
+func NewClient(ctx context.Context, serverPort int) *Client {
+	return &Client{
+		ctx:        ctx,
+		serverPort: serverPort,
+	}
+}
+
+func (client *Client) Run() error {
+	conn, err := grpc.Dial(fmt.Sprintf(":%d", client.serverPort), grpc.WithInsecure())
 	if err != nil {
 		return err
 	}
@@ -19,13 +31,13 @@ func NewClient(ctx context.Context, serverPort int) error {
 	// crate grpc client for ES Monitor Service
 	monitorService := api.NewMonitorServiceClient(conn)
 
-	resClusterHealth, err := monitorService.ReadClusterHealth(ctx, &api.ClusterHealthRequest{})
+	resClusterHealth, err := monitorService.ReadClusterHealth(client.ctx, &api.ClusterHealthRequest{})
 	if err != nil {
 		return err
 	}
 	log.Printf("Cluster Health:\n\n%+v\n\n", proto.MarshalTextString(resClusterHealth))
 
-	resIndicesInfo, err := monitorService.ReadIndicesInfo(ctx, &api.IndicesInfoRequest{})
+	resIndicesInfo, err := monitorService.ReadIndicesInfo(client.ctx, &api.IndicesInfoRequest{})
 	if err != nil {
 		return err
 	}

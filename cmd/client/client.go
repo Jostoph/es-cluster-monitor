@@ -17,7 +17,9 @@ func main() {
 	serverPort := flag.Int("server-port", 9000, "GRPC server port.")
 	flag.Parse()
 
-	if err := grpc.NewClient(ctx, *serverPort); err != nil {
+	client := grpc.NewClient(ctx, *serverPort)
+
+	if err := client.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(1)
 	}

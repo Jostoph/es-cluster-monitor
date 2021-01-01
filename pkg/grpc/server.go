@@ -13,21 +13,34 @@ import (
 	"os/signal"
 )
 
-func NewServer(ctx context.Context, port int, ESAddr string) error {
+type Server struct {
+	ctx  context.Context
+	port int
+	addr string
+}
 
-	listen, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+func NewServer(ctx context.Context, port int, ESAddr string) *Server {
+	return &Server{
+		ctx:  ctx,
+		port: port,
+		addr: ESAddr,
+	}
+}
+
+func (server *Server) Run() error {
+	listen, err := net.Listen("tcp", fmt.Sprintf(":%d", server.port))
 	if err != nil {
 		return err
 	}
 
 	// create new grpc server
-	server := grpc.NewServer()
+	serv := grpc.NewServer()
 
 	// create new ES Monitor Service Server
-	serviceServer := service.NewESMonitorServer(ESAddr, rest.Client)
+	serviceServer := service.NewESMonitorServer(server.addr, rest.Client)
 
 	// register Service to grpc server
-	api.RegisterMonitorServiceServer(server, serviceServer)
+	api.RegisterMonitorServiceServer(serv, serviceServer)
 
 	// interruption signal to stop server (^c)
 	c := make(chan os.Signal, 1)
@@ -35,10 +48,10 @@ func NewServer(ctx context.Context, port int, ESAddr string) error {
 	go func() {
 		for range c {
 			log.Println("Stopping grpc server...")
-			server.GracefulStop()
+			serv.GracefulStop()
 		}
 	}()
 
 	log.Println("Starting grpc server...")
-	return server.Serve(listen)
+	return serv.Serve(listen)
 }

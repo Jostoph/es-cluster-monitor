@@ -20,7 +20,9 @@ func main() {
 	esAddr := flag.String("es-addr", "http://localhost:9200", "Elastic Search Clusters Address.")
 	flag.Parse()
 
-	if err := grpc.NewServer(ctx, *port, *esAddr); err != nil {
+	server := grpc.NewServer(ctx, *port, *esAddr)
+
+	if err := server.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(1)
 	}

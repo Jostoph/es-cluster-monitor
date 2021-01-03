@@ -43,12 +43,21 @@ docker-compose up --build
 ### Server start-up
 ```shell
 $ go run server.go
-2020/12/27 10:35:21 Starting grpc server...
+{"level":"INFO","ts":"2021-01-03T14:30:31.889+0100","msg":"Starting grpc server."}
+{"level":"INFO","ts":"2021-01-03T14:30:40.117+0100","msg":"finished unary call with code OK",
+"grpc.start_time":"2021-01-03T14:30:40+01:00","system":"grpc","span.kind":"server",
+"grpc.service":"proto.MonitorService","grpc.method":"ReadClusterHealth","grpc.code":"OK",
+"grpc.time_ms":9.640000343322754}
+{"level":"INFO","ts":"2021-01-03T14:30:40.127+0100","msg":"finished unary call with code OK",
+"grpc.start_time":"2021-01-03T14:30:40+01:00","system":"grpc","span.kind":"server",
+"grpc.service":"proto.MonitorService","grpc.method":"ReadIndicesInfo","grpc.code":"OK",
+"grpc.time_ms":9.831999778747559}
+^C{"level":"WARN","ts":"2021-01-03T14:31:21.327+0100","msg":"Stopping grpc server."}
 ```
 ### Client start-up
 ```shell
 $ go run client.go
-2020/12/27 10:35:23 Cluster Health:
+2021/01/03 14:30:40 Cluster Health:
 
 cluster_name: "docker-cluster"
 status: YELLOW
@@ -58,23 +67,23 @@ active_primary_shards: 1
 active_shards: 1
 unassigned_shards: 1
 active_shards_percent_as_number: 50
-timestamp: 1609061723
+timestamp: 1609680640
 
 
-2020/12/27 10:35:23 Indices Info:
+2021/01/03 14:30:40 Indices Info:
 
 indices: <
   health: YELLOW
   status: "open"
   index: "bank"
-  uuid: "zFsb_M0gSke3mw0G_rXkkQ"
+  uuid: "5_7liZyeQRWv2X2zB0Qn8w"
   pri: 1
   rep: 1
   docs_count: 1000
   store_size: 388312
   pri_store_size: 388312
 >
-timestamp: 1609061723
+timestamp: 1609680640
 ```
 
 ## Tests

@@ -7,6 +7,8 @@ import (
 	"github.com/Jostoph/es-cluster-monitor/pkg/logger"
 	"github.com/Jostoph/es-cluster-monitor/pkg/rest"
 	"github.com/Jostoph/es-cluster-monitor/pkg/service"
+	"github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"google.golang.org/grpc"
 	"net"
 	"os"
@@ -37,8 +39,12 @@ func (server *Server) Run() error {
 		return err
 	}
 
-	// create new grpc server
-	serv := grpc.NewServer()
+	// create new grpc server with middlewares
+	grpc_zap.ReplaceGrpcLoggerV2(logger.Log)
+	serv := grpc.NewServer(
+		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(grpc_zap.StreamServerInterceptor(logger.Log))),
+		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(grpc_zap.UnaryServerInterceptor(logger.Log))),
+	)
 
 	// create new ES Monitor Service Server
 	serviceServer := service.NewESMonitorServer(server.addr, rest.NewClient())

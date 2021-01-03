@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/Jostoph/es-cluster-monitor/pkg/api"
+	"github.com/Jostoph/es-cluster-monitor/pkg/logger"
 	"github.com/Jostoph/es-cluster-monitor/pkg/rest"
 	"github.com/Jostoph/es-cluster-monitor/pkg/service"
 	"google.golang.org/grpc"
-	"log"
 	"net"
 	"os"
 	"os/signal"
@@ -28,6 +28,10 @@ func NewServer(ctx context.Context, port int, ESAddr string) *Server {
 }
 
 func (server *Server) Run() error {
+
+	// init logger
+	logger.Init()
+
 	listen, err := net.Listen("tcp", fmt.Sprintf(":%d", server.port))
 	if err != nil {
 		return err
@@ -47,11 +51,11 @@ func (server *Server) Run() error {
 	signal.Notify(c, os.Interrupt)
 	go func() {
 		for range c {
-			log.Println("Stopping grpc server...")
+			logger.Log.Warn("Stopping grpc server.")
 			serv.GracefulStop()
 		}
 	}()
 
-	log.Println("Starting grpc server...")
+	logger.Log.Info("Starting grpc server.")
 	return serv.Serve(listen)
 }

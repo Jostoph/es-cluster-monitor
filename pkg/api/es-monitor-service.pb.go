@@ -288,6 +288,7 @@ func (x *ClusterHealthResponse) GetTimestamp() int64 {
 	return 0
 }
 
+// Request: Indices Info
 type IndicesInfoRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -326,6 +327,7 @@ func (*IndicesInfoRequest) Descriptor() ([]byte, []int) {
 	return file_es_monitor_service_proto_rawDescGZIP(), []int{2}
 }
 
+// Response: Indices Info
 type IndicesInfoResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -381,6 +383,7 @@ func (x *IndicesInfoResponse) GetTimestamp() int64 {
 	return 0
 }
 
+// Single Index Info
 type IndexInfo struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

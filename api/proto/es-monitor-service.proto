@@ -39,13 +39,16 @@ message ClusterHealthResponse {
   int64 timestamp = 16;
 }
 
+// Request: Indices Info
 message IndicesInfoRequest {}
 
+// Response: Indices Info
 message IndicesInfoResponse {
   repeated IndexInfo indices = 1;
   int64 timestamp = 2;
 }
 
+// Single Index Info
 message IndexInfo {
   Status health = 1;
   string status = 2;
